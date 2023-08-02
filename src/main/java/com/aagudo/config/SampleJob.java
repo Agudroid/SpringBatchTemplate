@@ -4,6 +4,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -15,8 +16,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.aagudo.listener.FirstJobListener;
+import com.aagudo.listener.FirstStepListener;
+import com.aagudo.processor.FirstItemProcessor;
+import com.aagudo.reader.FirstItemReader;
 import com.aagudo.service.FirstTasklet;
 import com.aagudo.service.SecondTasklet;
+import com.aagudo.writer.FirstItemWriter;
+
 
 @Configuration
 public class SampleJob {
@@ -37,7 +43,19 @@ public class SampleJob {
 	private FirstJobListener firstJobListener;
 	
 	@Autowired
-	private StepExecutionListener stepExecutionListener;
+	private FirstStepListener stepExecutionListener;
+	
+	@Autowired
+	private FirstItemReader firstItemReader;
+	
+	@Autowired
+	private FirstItemProcessor firstItemProcessor;
+	
+	@Autowired
+	private FirstItemWriter firstItemWriter;
+	
+	
+	
 	
 	@Bean
 	public Job firstJob() {
@@ -64,5 +82,22 @@ public class SampleJob {
 				.build();
 	}
 	
+	@Bean
+	public Job secondJob() {
+		return jobBuilderFactory.get("Chunk Job")
+				.incrementer(new RunIdIncrementer())
+				.start(firstChunkStep())
+				.build();
+	}
+	
+	private Step firstChunkStep() {
+		return this.stepBuilderFactory.get("ChunkStep")
+				.<Integer, Long>chunk(3)
+				.reader(this.firstItemReader)
+				.processor(this.firstItemProcessor)
+				.writer(this.firstItemWriter)
+				.build();
+	
+	}	
 
 }
