@@ -10,7 +10,7 @@ import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FirstItemReader implements ItemReader<Integer>{
+public class DummyItemReader implements ItemReader<Integer>{
 
 	List<Integer> list = Arrays.asList(1,2,3,4,5,6,7,8,9,10);
 	int i = 0;

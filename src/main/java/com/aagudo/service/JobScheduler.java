@@ -18,11 +18,11 @@ public class JobScheduler {
 	@Autowired
 	JobLauncher jobLauncher;
 	
-	@Qualifier("secondJob")
+	@Qualifier("chunkJob")
 	@Autowired
 	Job secondJob;
 	
-	@Scheduled(cron = "0 0/1 * 1/1 * ?")
+	//@Scheduled(cron = "0 0/1 * 1/1 * ?")
 	public void secondJobScheduler() {
 		Map<String, JobParameter> params = new HashMap<>();
 		params.put("currentTime", new JobParameter(System.currentTimeMillis()));

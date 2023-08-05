@@ -18,12 +18,12 @@ public class JobService {
 	@Autowired
 	JobLauncher jobLauncher;
 	
-	@Qualifier("firstJob")
+	@Qualifier("taskletJob")
 	@Autowired
 	Job firstJob;
 	
 	
-	@Qualifier("secondJob")
+	@Qualifier("chunkJob")
 	@Autowired
 	Job secondJob;
 	
