@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.aagudo.model.StudentDTO;
+import com.aagudo.model.StudentRequest;
 
 
 @Service
@@ -37,5 +38,14 @@ public class StudentService {
 		}
 		
 		return null;
+	}
+	
+	public StudentDTO restCallToCreateStudent(StudentDTO studentDTO) {
+		
+		RestTemplate restTemplate = new RestTemplate();
+		
+		return restTemplate.postForObject("http://localhost:8081/api/v1/createStudent", studentDTO, StudentDTO.class);
+	
+		
 	}
 }
