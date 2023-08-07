@@ -20,12 +20,16 @@ public class JobService {
 	
 	@Qualifier("taskletJob")
 	@Autowired
-	Job firstJob;
+	Job taskletJob;
 	
 	
 	@Qualifier("chunkJob")
 	@Autowired
-	Job secondJob;
+	Job chunkJob;
+	
+	@Qualifier("faultToleranceJob")
+	@Autowired
+	Job toleranceJob;
 	
 	@Async
 	public void startJob(String jobName) {
@@ -34,10 +38,15 @@ public class JobService {
 		
 		JobParameters jobParameters = new JobParameters(params);
 		try {
-			if(jobName.equals("First Job")) {
-				this.jobLauncher.run(firstJob, jobParameters);
+			if(jobName.equals("tasklet")) {
+				this.jobLauncher.run(taskletJob, jobParameters);
+			} else if(jobName.equals("chunk")){
+				this.jobLauncher.run(chunkJob, jobParameters);
+			} else if(jobName.equals("tolerance")){
+				this.jobLauncher.run(toleranceJob, jobParameters);
 			} else {
-				this.jobLauncher.run(secondJob, jobParameters);
+				System.out.println("Job not found");
+				throw new Exception();
 			}
 		}
 		catch(Exception e) {

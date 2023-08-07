@@ -5,12 +5,15 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
+import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.aagudo.listener.FirstJobListener;
 import com.aagudo.listener.FirstStepListener;
+import com.aagudo.listener.SkipListener;
 import com.aagudo.model.StudentDTO;
 import com.aagudo.processor.FirstItemProcessor;
 import com.aagudo.reader.ApiItemReader;
@@ -50,6 +53,9 @@ public class SampleJob {
 	
 	@Autowired
 	private FirstStepListener stepExecutionListener;
+	
+	@Autowired
+	private SkipListener skipListener;
 	
 	/*****************************
 	 ***********Readers***********
@@ -192,6 +198,31 @@ public class SampleJob {
 				.<StudentDTO, StudentDTO>chunk(3)
 				.reader(this.apiItemReader.itemReaderAdapter())
 				.writer(this.apiItemWriter.itemWriterAdapter())
+				.build();
+	}
+	
+	
+	@Bean
+	public Job faultToleranceJob() {
+		
+		return jobBuilderFactory.get("toleranceJob")
+				.incrementer(new RunIdIncrementer())
+				.start(toleranceStep())
+				.build();
+	}
+	
+	private Step toleranceStep() {
+		return this.stepBuilderFactory.get("FaultToleranceStep")
+				.<StudentDTO, StudentDTO>chunk(3)
+				.reader(this.csvItemReader.flatFileItemReader())
+				.writer(this.jsonItemWriter.jsonItemWriter())
+				.faultTolerant()
+				.skip(FlatFileParseException.class)
+				.skip(NullPointerException.class)
+				.skip(Throwable.class)
+				//.skipLimit(10)
+				.skipPolicy(new AlwaysSkipItemSkipPolicy())
+				.listener(skipListener)
 				.build();
 	}
 
